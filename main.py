@@ -80,6 +80,24 @@ st.markdown("""
         padding-top: 4px;
         padding-bottom: 8px;
     }
+
+    /* 치트키 워딩 리스트 전용 스타일 */
+    .cheat-wording-list {
+        list-style: none;
+        margin: 4px 0 0 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    .cheat-wording-list li {
+        background-color: #F2F2F7;
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-size: 0.95rem;
+        color: #1C1C1E;
+        margin-bottom: 0 !important;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -216,16 +234,23 @@ def render_plan_report(plan: dict):
     st.markdown("#### 👉 4. 치트키 워딩 리스트")
     cheats = plan.get("step8_cheat_keys", [])
     if cheats:
-        # 카테고리별로 묶어서 카드 렌더링
+        # 카테고리별로 묶기
         cheat_dict = {}
         for c in cheats:
             cat = c.get("category", "기타")
             word = c.get("wording", "")
             if cat not in cheat_dict: cheat_dict[cat] = []
             if word: cheat_dict[cat].append(word)
-            
+
         for cat, words in cheat_dict.items():
-            render_card(title=f"🏷️ {cat}", bullet_dict={"추천 워딩 리스트": " / ".join(words)})
+            items_html = "".join(f"<li>{html.escape(w)}</li>" for w in words)
+            card_html = f"""
+            <div class="custom-card">
+                <div class="custom-card-title">🏷️ {html.escape(str(cat))}</div>
+                <ul class="cheat-wording-list">{items_html}</ul>
+            </div>
+            """
+            st.markdown(card_html, unsafe_allow_html=True)
 
     st.markdown("#### 👉 5. 🎯 최종 우선순위 (제작 가이드)")
     for prio in plan.get("step9_final_priority", []) or []:
@@ -280,7 +305,7 @@ def create_project_dialog():
     if st.button("생성하기", type="primary", use_container_width=True):
         if not new_p.strip(): st.warning("브랜드명을 입력해주세요.")
         else:
-            with st.spinner("브랜드를 생성 중입니다..."): db.create_project(new_p)
+            with st.spinner("로딩중"): db.create_project(new_p)
             st.toast(f"✅ 브랜드 '{new_p}' 생성 완료!")
             st.rerun()
 
@@ -292,7 +317,7 @@ def create_product_dialog(proj_id):
     if st.button("제품 생성하기", type="primary", use_container_width=True):
         if not new_prod.strip(): st.warning("제품명을 입력해주세요.")
         else:
-            with st.spinner("제품 정보와 이미지를 안전하게 저장 중입니다... 잠시만 기다려주세요!"):
+            with st.spinner("로딩중"):
                 img_paths_json = ""
                 if new_imgs:
                     saved_paths = []
@@ -336,7 +361,7 @@ def render_home():
     st.write("") 
     if st.button("🔍 광고 레퍼런스 심층 분석", type="primary", use_container_width=True):
         if not videos: return st.warning("영상을 업로드해주세요.")
-        with st.spinner("광고 레퍼런스의 심리 구조와 타임라인을 분석하고 있습니다... (약 30초~1분 소요)"):
+        with st.spinner("로딩중"):
             v_path = None
             if videos:
                 ext = os.path.splitext(videos[0].name)[1]
@@ -366,7 +391,7 @@ def render_home():
             p = db.get_product(st.session_state.get("selected_product_id"))
             if not p: return st.warning("적용할 '제품'을 상단에서 먼저 선택해 주세요.")
             
-            with st.spinner("레퍼런스를 기반으로 디벨롭된 30~40초 풀버전 대본 5개를 꽉꽉 채워 생성 중입니다... (약 1~2분 정도 소요될 수 있습니다)"):
+            with st.spinner("로딩중"):
                 img_paths = []
                 if p.image_paths:
                     try: img_paths = json.loads(p.image_paths)
