@@ -26,16 +26,7 @@ st.markdown("""
     *:focus { outline: none !important; box-shadow: none !important; border-color: transparent !important; }
     div[data-baseweb="select"] > div:focus-within { box-shadow: 0 0 0 1px #007AFF !important; border-color: #007AFF !important; }
     hr { border-color: #E5E5EA !important; margin: 2rem 0; }
-    
-    /* 🌟 줄줄이 조각나지 않고 섹션별로 큼직하게 묶이는 진짜 카드 박스 디자인 */
-    div.element-container:has(> div.stMarkdown), div[data-testid="stVerticalBlock"] > div[data-testid="stContainer"] {
-        background-color: #FFFFFF !important;
-        border: 1px solid #E5E5EA !important;
-        border-radius: 12px !important;
-        padding: 1.5rem !important;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.03) !important;
-        margin-bottom: 1.2rem !important;
-    }
+    div[data-testid="stContainer"] { background-color: #FFFFFF !important; border: 1px solid #E5E5EA !important; border-radius: 12px !important; padding: 1.5rem !important; box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -43,6 +34,7 @@ def render_analysis_report(res: dict):
     st.markdown("#### 📺 원본 광고 대본 전문")
     st.info("우측 상단의 복사 아이콘을 클릭하여 기획안에 바로 붙여넣으세요.")
     
+    # 첫 번째 대본을 HTML 코드가 아닌 깔끔한 st.container(카드) 형태로 렌더링
     raw_script_text = res.get("raw_script", "")
     if raw_script_text:
         with st.container():
@@ -51,39 +43,38 @@ def render_analysis_report(res: dict):
     if res.get("scene_analysis"):
         st.markdown("#### 1. 장면별 광고 분석")
         for scene in res["scene_analysis"]:
-            # 하나의 타임스탬프당 하나의 깔끔한 큰 카드 박스로 묶음
             with st.container():
                 st.markdown(f"**⏱ {scene.get('timestamp', '')}**")
-                st.markdown(f"• **광고 내용:** {scene.get('ad_content', '')}")
-                st.markdown(f"• **소비자 심리:** {scene.get('consumer_psychology', '')}")
-                st.markdown(f"• **전환 역할:** {scene.get('conversion_role', '')}")
-                st.markdown(f"• **핵심 메시지:** {scene.get('core_message', '')}")
-                st.markdown(f"• **타 제품 적용 방식:** {scene.get('application_method', '')}")
+                st.markdown(f"- **광고 내용:** {scene.get('ad_content', '')}")
+                st.markdown(f"- **소비자 심리:** {scene.get('consumer_psychology', '')}")
+                st.markdown(f"- **전환 역할:** {scene.get('conversion_role', '')}")
+                st.markdown(f"- **핵심 메시지:** {scene.get('core_message', '')}")
+                st.markdown(f"- **타 제품 적용 방식:** {scene.get('application_method', '')}")
 
     strat = res.get("strategy_analysis", {})
     if strat:
         st.markdown("#### 2. 광고 전략 분석")
         with st.container():
-            st.markdown(f"• **타깃 고객:** {strat.get('target_audience', '')}")
-            st.markdown(f"• **고객의 기존 고민:** {strat.get('customer_pain', '')}")
-            st.markdown(f"• **카테고리 불편:** {strat.get('category_inconvenience', '')}")
-            st.markdown(f"• **부정적 인식:** {strat.get('negative_perception', '')}")
-            st.markdown(f"• **구매 망설임 이유:** {strat.get('hesitation_reason', '')}")
-            st.markdown(f"• **제거한 진입장벽:** {strat.get('barrier_removed', '')}")
-            st.markdown(f"• **차별화 포지셔닝:** {strat.get('positioning', '')}")
+            st.markdown(f"- **타깃 고객:** {strat.get('target_audience', '')}")
+            st.markdown(f"- **고객의 기존 고민:** {strat.get('customer_pain', '')}")
+            st.markdown(f"- **카테고리 불편:** {strat.get('category_inconvenience', '')}")
+            st.markdown(f"- **부정적 인식:** {strat.get('negative_perception', '')}")
+            st.markdown(f"- **구매 망설임 이유:** {strat.get('hesitation_reason', '')}")
+            st.markdown(f"- **제거한 진입장벽:** {strat.get('barrier_removed', '')}")
+            st.markdown(f"- **차별화 포지셔닝:** {strat.get('positioning', '')}")
             st.info(f"💡 **광고 전략 핵심:** {strat.get('core_strategy', '')}")
 
     hook = res.get("hook_analysis", {})
     if hook:
         st.markdown("#### 3. Hook 상세 분석")
         with st.container():
-            st.markdown(f"• **Hook 유형:** {hook.get('type', '')}")
-            st.markdown(f"• **Hook 문장:** {hook.get('sentence', '')}")
-            st.markdown(f"• **첫 문장/장면 선택 이유:** {hook.get('reason_chosen', '')}")
-            st.markdown(f"• **첫 3초 자극 심리:** {hook.get('first_3s_psychology', '')}")
-            st.markdown(f"• **시청 지속 이유:** {hook.get('scroll_stop_reason', '')}")
-            st.markdown(f"• **사용된 공식:** {hook.get('hook_formula', '')}")
-            st.markdown(f"• **전환 미치는 영향:** {hook.get('conversion_impact', '')}")
+            st.markdown(f"- **Hook 유형:** {hook.get('type', '')}")
+            st.markdown(f"- **Hook 문장:** {hook.get('sentence', '')}")
+            st.markdown(f"- **첫 문장/장면 선택 이유:** {hook.get('reason_chosen', '')}")
+            st.markdown(f"- **첫 3초 자극 심리:** {hook.get('first_3s_psychology', '')}")
+            st.markdown(f"- **시청 지속 이유:** {hook.get('scroll_stop_reason', '')}")
+            st.markdown(f"- **사용된 공식:** {hook.get('hook_formula', '')}")
+            st.markdown(f"- **전환 미치는 영향:** {hook.get('conversion_impact', '')}")
 
     struct = res.get("structure_analysis", {})
     if struct:
@@ -92,9 +83,9 @@ def render_analysis_report(res: dict):
         for stage in stages:
             with st.container():
                 st.markdown(f"**📌 단계: {stage.get('stage', '')}**")
-                st.markdown(f"• **광고 내용:** {stage.get('ad_content', '')}")
-                st.markdown(f"• **소비자 심리:** {stage.get('consumer_psychology', '')}")
-                st.markdown(f"• **전환 역할:** {stage.get('conversion_role', '')}")
+                st.markdown(f"- **광고 내용:** {stage.get('ad_content', '')}")
+                st.markdown(f"- **소비자 심리:** {stage.get('consumer_psychology', '')}")
+                st.markdown(f"- **전환 역할:** {stage.get('conversion_role', '')}")
         st.info(f"📍 **왜 이 순서로 배치했는가:** {struct.get('why_this_order', '')}")
         st.info(f"🎬 **영상 연출 포인트:** {struct.get('visual_direction', '')}")
 
@@ -104,9 +95,9 @@ def render_analysis_report(res: dict):
         for item in psych:
             with st.container():
                 st.markdown(f"**🔹 {item.get('element', '')}**")
-                st.markdown(f"• **사용 방식:** {item.get('usage', '')}")
-                st.markdown(f"• **소비자 심리:** {item.get('psychology', '')}")
-                st.markdown(f"• **전환 기여 이유:** {item.get('contribution', '')}")
+                st.markdown(f"- **사용 방식:** {item.get('usage', '')}")
+                st.markdown(f"- **소비자 심리:** {item.get('psychology', '')}")
+                st.markdown(f"- **전환 기여 이유:** {item.get('contribution', '')}")
 
     formula = res.get("success_formula", {})
     if formula:
@@ -114,18 +105,18 @@ def render_analysis_report(res: dict):
         st.success(f"**📈 이 광고가 성과가 날 가능성이 높은 이유:**\n{formula.get('why_it_works', '')}")
         with st.container():
             st.markdown(f"**🏆 공식명:** {formula.get('formula_name', '')}")
-            st.markdown(f"• **광고 구조:** {formula.get('formula_structure', '')}")
-            st.markdown(f"• **적합한 상황:** {formula.get('suitable_situation', '')}")
-            st.markdown(f"• **핵심 심리:** {formula.get('core_psychology', '')}")
-            st.markdown(f"• **활용 방법:** {formula.get('how_to_use', '')}")
+            st.markdown(f"- **광고 구조:** {formula.get('formula_structure', '')}")
+            st.markdown(f"- **적합한 상황:** {formula.get('suitable_situation', '')}")
+            st.markdown(f"- **핵심 심리:** {formula.get('core_psychology', '')}")
+            st.markdown(f"- **활용 방법:** {formula.get('how_to_use', '')}")
 
 def render_plan_report(plan: dict):
     st.markdown("#### 👉 1. 우리 브랜드 적용 방향")
     bd = plan.get("step5_brand_direction", {}) or {}
     with st.container():
-        st.markdown(f"• **심리 구조 유지 방안:** {bd.get('psychology_match', '')}")
-        st.markdown(f"• **우리 고객의 실제 고민:** {bd.get('customer_worry', '')}")
-        st.markdown(f"• **카테고리 상황 설정:** {bd.get('category_situation', '')}")
+        st.markdown(f"- **심리 구조 유지 방안:** {bd.get('psychology_match', '')}")
+        st.markdown(f"- **우리 고객의 실제 고민:** {bd.get('customer_worry', '')}")
+        st.markdown(f"- **카테고리 상황 설정:** {bd.get('category_situation', '')}")
         st.warning(f"🚨 **심의 리스크 회피:** {bd.get('risk_management', '')}")
 
     st.markdown("#### 👉 2. 우리 브랜드용 고전환 광고 공식")
@@ -133,24 +124,22 @@ def render_plan_report(plan: dict):
     for f in formulas:
         with st.container():
             st.markdown(f"**📌 공식명: {f.get('formula_name', '')}**")
-            st.markdown(f"• **핵심 심리:** {f.get('core_psychology', '')}")
-            st.markdown(f"• **적합 상황:** {f.get('suitable_situation', '')}")
-            st.markdown(f"• **Hook 예시:** {f.get('hook_example', '')}")
-            st.markdown(f"• **대본 전개:** {f.get('script_flow', '')}")
-            st.markdown(f"• **필수 화면:** {f.get('required_screen', '')}")
-            st.markdown(f"• **CTA 방식:** {f.get('cta_method', '')}")
+            st.markdown(f"- **핵심 심리:** {f.get('core_psychology', '')}")
+            st.markdown(f"- **적합 상황:** {f.get('suitable_situation', '')}")
+            st.markdown(f"- **Hook 예시:** {f.get('hook_example', '')}")
+            st.markdown(f"- **대본 전개:** {f.get('script_flow', '')}")
+            st.markdown(f"- **필수 화면:** {f.get('required_screen', '')}")
+            st.markdown(f"- **CTA 방식:** {f.get('cta_method', '')}")
 
     st.markdown("#### 👉 3. 신규 광고 대본 (풀버전 5종)")
     scripts = plan.get("step7_new_scripts", [])
     for s in scripts:
         with st.container():
-            st.markdown(f"### 🎬 컨셉명: {s.get('concept', '')}")
-            st.markdown("**화면 구성:**")
-            st.caption(s.get('screen_composition', ''))
-            st.markdown("**대사 (전문):**")
-            st.code(s.get('dialogue', ''), language="text")
-            st.markdown(f"• **자막:** {s.get('subtitle', '')}")
-            st.markdown(f"• **CTA:** {s.get('cta', '')}")
+            st.markdown(f"**🎬 컨셉명: {s.get('concept', '')}**")
+            st.markdown(f"**화면 구성:**\n{s.get('screen_composition', '')}")
+            st.markdown(f"**대사(전문):**\n> {s.get('dialogue', '')}")
+            st.markdown(f"**자막:** {s.get('subtitle', '')}")
+            st.markdown(f"**CTA:** {s.get('cta', '')}")
 
     st.markdown("#### 👉 4. 치트키 워딩 리스트")
     cheats = plan.get("step8_cheat_keys", [])
@@ -158,10 +147,7 @@ def render_plan_report(plan: dict):
         for c in cheats:
             with st.container():
                 st.markdown(f"**🏷️ {c.get('category', '기타')}**")
-                raw_words = c.get('wording', '')
-                words = [w.strip() for w in raw_words.replace('/', ',').split(',') if w.strip()]
-                for w in words:
-                    st.markdown(f"• {w}")
+                st.markdown(f"- {c.get('wording', '')}")
 
     st.markdown("#### 👉 5. 🎯 최종 우선순위 (제작 가이드)")
     for prio in plan.get("step9_final_priority", []) or []:
