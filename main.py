@@ -200,14 +200,14 @@ def render_nav():
                 st.rerun()
     st.divider()
 
-@st.dialog("📁 새 프로젝트 만들기")
+@st.dialog("📁 새 브랜드 만들기")
 def create_project_dialog():
-    new_p = st.text_input("프로젝트명 (예: 2024년 4분기 캠페인)")
+    new_p = st.text_input("브랜드명 (예: 올리브영, 나이키)")
     if st.button("생성하기", type="primary", use_container_width=True):
-        if not new_p.strip(): st.warning("프로젝트명을 입력해주세요.")
+        if not new_p.strip(): st.warning("브랜드명을 입력해주세요.")
         else:
-            with st.spinner("프로젝트를 생성 중입니다..."): db.create_project(new_p)
-            st.toast(f"✅ 프로젝트 '{new_p}' 생성 완료!")
+            with st.spinner("브랜드를 생성 중입니다..."): db.create_project(new_p)
+            st.toast(f"✅ 브랜드 '{new_p}' 생성 완료!")
             st.rerun()
 
 @st.dialog("📦 새 제품 추가하기")
@@ -234,15 +234,15 @@ def create_product_dialog(proj_id):
             st.rerun()
 
 def render_home():
-    st.markdown("### 📁 1. 프로젝트 / 제품")
+    st.markdown("### 📁 1. 브랜드 / 제품")
     projects = {p.id: p.name for p in db.list_projects()}
     
     c1, c2 = st.columns([5, 1], vertical_alignment="bottom")
     with c1:
-        proj_id = st.selectbox("프로젝트 선택", options=[None] + list(projects.keys()), format_func=lambda x: projects.get(x, "선택 안 함"))
+        proj_id = st.selectbox("브랜드 선택", options=[None] + list(projects.keys()), format_func=lambda x: projects.get(x, "선택 안 함"))
         st.session_state["selected_project_id"] = proj_id
     with c2:
-        if st.button("+ 새 프로젝트", use_container_width=True): create_project_dialog()
+        if st.button("+ 새 브랜드", use_container_width=True): create_project_dialog()
                 
     if proj_id:
         products = {p.id: p.name for p in db.list_products(proj_id)}
@@ -288,7 +288,7 @@ def render_home():
         if st.button("✨ 우리 브랜드 적용 기획안 생성", type="primary"):
             p = db.get_product(st.session_state.get("selected_product_id"))
             if not p: return st.warning("적용할 '제품'을 상단에서 먼저 선택해 주세요.")
-            with st.spinner("분석 결과를 바탕으로 우리 제품 맞춤형 신규 대본을 생성 중입니다..."):
+            with st.spinner("레퍼런스를 기반으로 디벨롭된 30~40초 풀버전 대본 5개를 생성 중입니다..."):
                 img_paths = []
                 if p.image_paths:
                     try: img_paths = json.loads(p.image_paths)
@@ -327,7 +327,7 @@ def render_library():
     
     c1, c2 = st.columns(2)
     with c1:
-        proj_filter = st.selectbox("프로젝트 필터", options=[None] + list(projects.keys()), format_func=lambda x: "전체보기" if x is None else projects[x])
+        proj_filter = st.selectbox("브랜드 필터", options=[None] + list(projects.keys()), format_func=lambda x: "전체보기" if x is None else projects[x])
     with c2:
         products = {p.id: p.name for p in db.list_products(proj_filter)} if proj_filter else {}
         prod_filter = st.selectbox("제품 필터", options=[None] + list(products.keys()), format_func=lambda x: "전체보기" if x is None else products[x])
