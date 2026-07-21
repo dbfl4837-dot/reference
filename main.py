@@ -27,14 +27,14 @@ st.markdown("""
     div[data-baseweb="select"] > div:focus-within { box-shadow: 0 0 0 1px #007AFF !important; border-color: #007AFF !important; }
     hr { border-color: #E5E5EA !important; margin: 2rem 0; }
     
-    /* 깔끔한 카드 스타일 */
+    /* 완벽하게 살아난 깔끔한 카드 스타일 */
     div[data-testid="stContainer"] { 
         background-color: #FFFFFF !important; 
         border: 1px solid #E5E5EA !important; 
         border-radius: 12px !important; 
-        padding: 1.25rem !important; 
-        box-shadow: 0 1px 3px rgba(0,0,0,0.03) !important;
-        margin-bottom: 1rem !important;
+        padding: 1.5rem !important; 
+        box-shadow: 0 2px 5px rgba(0,0,0,0.03) !important;
+        margin-bottom: 1.2rem !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -158,7 +158,6 @@ def render_plan_report(plan: dict):
             with st.container():
                 st.markdown(f"**🏷️ {c.get('category', '기타')}**")
                 raw_words = c.get('wording', '')
-                # 반짝이는 이모지 대신 깔끔한 불릿 포인트(•)로 한 줄씩 출력
                 words = [w.strip() for w in raw_words.replace('/', ',').split(',') if w.strip()]
                 for w in words:
                     st.markdown(f"• {w}")
