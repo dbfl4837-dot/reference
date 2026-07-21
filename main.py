@@ -83,20 +83,15 @@ st.markdown("""
 
     /* 치트키 워딩 리스트 전용 스타일 */
     .cheat-wording-list {
-        list-style: none;
+        list-style: disc;
         margin: 4px 0 0 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
+        padding-left: 12px;
     }
     .cheat-wording-list li {
-        background-color: #F2F2F7;
-        border-radius: 8px;
-        padding: 8px 12px;
         font-size: 0.95rem;
-        color: #1C1C1E;
-        margin-bottom: 0 !important;
+        color: #3A3A3C;
+        margin-bottom: 8px !important;
+        line-height: 1.6;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -105,7 +100,7 @@ def render_analysis_report(res: dict):
     st.markdown("#### 📺 원본 광고 대본 전문")
     st.info("우측 상단의 복사 아이콘을 클릭하여 기획안에 바로 붙여넣으세요.")
     with st.container(border=True):
-        st.code(res.get("raw_script", ""), language="text")
+        st.code(res.get("raw_script", ""), language="text", wrap_lines=True)
 
     if res.get("scene_analysis"):
         st.markdown("#### 1. 장면별 광고 분석")
