@@ -18,6 +18,51 @@ def to_kst_str(dt, fmt="%Y-%m-%d %H:%M"):
     if dt is None: return ""
     return dt.replace(tzinfo=timezone.utc).astimezone(KST).strftime(fmt)
 
+# 일반 카드형 컴포넌트 복구
+def render_card(title, bullet_dict):
+    lis = ""
+    for k, v in bullet_dict.items():
+        if v:
+            formatted_v = html.escape(str(v)).replace('\n', '<br>')
+            lis += f"<li><strong>{html.escape(k)}:</strong> <span class='card-content'>{formatted_v}</span></li>"
+            
+    card_html = f"""
+    <div class="custom-card">
+        <div class="custom-card-title">{html.escape(str(title))}</div>
+        <ul>{lis}</ul>
+    </div>
+    """
+    st.markdown(card_html, unsafe_allow_html=True)
+
+# 치트키 워딩 전용 가독성 카드
+def render_cheat_card(title, word_string):
+    # 쉼표나 슬래시 등으로 들어온 워딩들을 깔끔하게 리스트 태그로 변환
+    words = [w.strip() for w in word_string.replace('/', ',').split(',') if w.strip()]
+    word_items = "".join(f"<li style='margin-bottom: 8px; font-size: 1rem; color: #1C1C1E;'>✨ {html.escape(w)}</li>" for w in words)
+    
+    card_html = f"""
+    <div class="custom-card">
+        <div class="custom-card-title">{html.escape(str(title))}</div>
+        <ul style='list-style-type: none; padding-left: 0; margin-bottom: 0;'>{word_items}</ul>
+    </div>
+    """
+    st.markdown(card_html, unsafe_allow_html=True)
+
+# 대본 전용 카드
+def render_script_card(title, script_dict):
+    content = f"<div class='custom-card'><div class='custom-card-title'>{html.escape(str(title))}</div>"
+    for k, v in script_dict.items():
+        if v:
+            formatted_v = html.escape(str(v)).replace('\n', '<br>')
+            content += f"""
+            <div style='margin-bottom: 16px;'>
+                <strong style='color: #1C1C1E; font-size: 1rem;'>{html.escape(k)}:</strong><br>
+                <div style='color: #3A3A3C; line-height: 1.8; margin-top: 6px; padding: 12px; background-color: #F3F4F6; border-radius: 8px;'>{formatted_v}</div>
+            </div>
+            """
+    content += "</div>"
+    st.markdown(content, unsafe_allow_html=True)
+
 st.markdown("""
     <style>
     .stApp { background-color: #F9FAFB; }
@@ -27,6 +72,27 @@ st.markdown("""
     div[data-baseweb="select"] > div:focus-within { box-shadow: 0 0 0 1px #007AFF !important; border-color: #007AFF !important; }
     hr { border-color: #E5E5EA !important; margin: 2rem 0; }
     div[data-testid="stContainer"] { background-color: #FFFFFF !important; border: 1px solid #E5E5EA !important; border-radius: 12px !important; padding: 1.5rem !important; box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important; }
+    
+    .custom-card {
+        border: 1px solid #E5E5EA;
+        border-radius: 10px;
+        padding: 24px;
+        margin-bottom: 20px;
+        background-color: #FFFFFF;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .custom-card-title {
+        font-weight: 700;
+        color: #1C1C1E;
+        margin-bottom: 16px;
+        font-size: 1.2rem;
+        border-bottom: 1px solid #E5E5EA;
+        padding-bottom: 10px;
+    }
+    .custom-card ul { margin-bottom: 0; padding-left: 12px; list-style-type: disc; }
+    .custom-card li { margin-bottom: 12px; color: #3A3A3C; font-size: 0.95rem; line-height: 1.7; }
+    .custom-card li strong { color: #1C1C1E; display: inline-block; min-width: 100px; }
+    .card-content { display: inline-block; padding-top: 2px; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -34,58 +100,65 @@ def render_analysis_report(res: dict):
     st.markdown("#### 📺 원본 광고 대본 전문")
     st.info("우측 상단의 복사 아이콘을 클릭하여 기획안에 바로 붙여넣으세요.")
     
-    # 첫 번째 대본을 HTML 코드가 아닌 깔끔한 st.container(카드) 형태로 렌더링
+    # 첫 번째 대본을 카드 안에 깔끔하게 삽입
     raw_script_text = res.get("raw_script", "")
     if raw_script_text:
-        with st.container():
-            st.markdown(raw_script_text)
+        render_card("대본 원문", {"전문": raw_script_text})
 
     if res.get("scene_analysis"):
         st.markdown("#### 1. 장면별 광고 분석")
         for scene in res["scene_analysis"]:
-            with st.container():
-                st.markdown(f"**⏱ {scene.get('timestamp', '')}**")
-                st.markdown(f"- **광고 내용:** {scene.get('ad_content', '')}")
-                st.markdown(f"- **소비자 심리:** {scene.get('consumer_psychology', '')}")
-                st.markdown(f"- **전환 역할:** {scene.get('conversion_role', '')}")
-                st.markdown(f"- **핵심 메시지:** {scene.get('core_message', '')}")
-                st.markdown(f"- **타 제품 적용 방식:** {scene.get('application_method', '')}")
+            render_card(
+                title=scene.get('timestamp', ''),
+                bullet_dict={
+                    "광고 내용": scene.get('ad_content', ''),
+                    "소비자 심리": scene.get('consumer_psychology', ''),
+                    "전환 역할": scene.get('conversion_role', ''),
+                    "핵심 메시지": scene.get('core_message', ''),
+                    "타 제품 적용 방식": scene.get('application_method', '')
+                }
+            )
 
     strat = res.get("strategy_analysis", {})
     if strat:
         st.markdown("#### 2. 광고 전략 분석")
-        with st.container():
-            st.markdown(f"- **타깃 고객:** {strat.get('target_audience', '')}")
-            st.markdown(f"- **고객의 기존 고민:** {strat.get('customer_pain', '')}")
-            st.markdown(f"- **카테고리 불편:** {strat.get('category_inconvenience', '')}")
-            st.markdown(f"- **부정적 인식:** {strat.get('negative_perception', '')}")
-            st.markdown(f"- **구매 망설임 이유:** {strat.get('hesitation_reason', '')}")
-            st.markdown(f"- **제거한 진입장벽:** {strat.get('barrier_removed', '')}")
-            st.markdown(f"- **차별화 포지셔닝:** {strat.get('positioning', '')}")
-            st.info(f"💡 **광고 전략 핵심:** {strat.get('core_strategy', '')}")
+        render_card("전략 상세", {
+            "타깃 고객": strat.get('target_audience', ''),
+            "고객의 기존 고민": strat.get('customer_pain', ''),
+            "카테고리 불편": strat.get('category_inconvenience', ''),
+            "부정적 인식": strat.get('negative_perception', ''),
+            "구매 망설임 이유": strat.get('hesitation_reason', ''),
+            "제거한 진입장벽": strat.get('barrier_removed', ''),
+            "차별화 포지셔닝": strat.get('positioning', ''),
+            "💡 광고 전략 핵심": strat.get('core_strategy', '')
+        })
 
     hook = res.get("hook_analysis", {})
     if hook:
         st.markdown("#### 3. Hook 상세 분석")
-        with st.container():
-            st.markdown(f"- **Hook 유형:** {hook.get('type', '')}")
-            st.markdown(f"- **Hook 문장:** {hook.get('sentence', '')}")
-            st.markdown(f"- **첫 문장/장면 선택 이유:** {hook.get('reason_chosen', '')}")
-            st.markdown(f"- **첫 3초 자극 심리:** {hook.get('first_3s_psychology', '')}")
-            st.markdown(f"- **시청 지속 이유:** {hook.get('scroll_stop_reason', '')}")
-            st.markdown(f"- **사용된 공식:** {hook.get('hook_formula', '')}")
-            st.markdown(f"- **전환 미치는 영향:** {hook.get('conversion_impact', '')}")
+        render_card("Hook 분석 요소", {
+            "Hook 유형": hook.get('type', ''),
+            "Hook 문장": hook.get('sentence', ''),
+            "첫 문장/장면 선택 이유": hook.get('reason_chosen', ''),
+            "첫 3초 자극 심리": hook.get('first_3s_psychology', ''),
+            "시청 지속 이유": hook.get('scroll_stop_reason', ''),
+            "사용된 공식": hook.get('hook_formula', ''),
+            "전환 미치는 영향": hook.get('conversion_impact', '')
+        })
 
     struct = res.get("structure_analysis", {})
     if struct:
         st.markdown("#### 4. 광고 구조 분해")
         stages = struct.get("stages", [])
         for stage in stages:
-            with st.container():
-                st.markdown(f"**📌 단계: {stage.get('stage', '')}**")
-                st.markdown(f"- **광고 내용:** {stage.get('ad_content', '')}")
-                st.markdown(f"- **소비자 심리:** {stage.get('consumer_psychology', '')}")
-                st.markdown(f"- **전환 역할:** {stage.get('conversion_role', '')}")
+            render_card(
+                title=stage.get('stage', '구조 단계'),
+                bullet_dict={
+                    "광고 내용": stage.get('ad_content', ''),
+                    "소비자 심리": stage.get('consumer_psychology', ''),
+                    "전환 역할": stage.get('conversion_role', '')
+                }
+            )
         st.info(f"📍 **왜 이 순서로 배치했는가:** {struct.get('why_this_order', '')}")
         st.info(f"🎬 **영상 연출 포인트:** {struct.get('visual_direction', '')}")
 
@@ -93,61 +166,75 @@ def render_analysis_report(res: dict):
     if psych:
         st.markdown("#### 5. 구매 심리 분석")
         for item in psych:
-            with st.container():
-                st.markdown(f"**🔹 {item.get('element', '')}**")
-                st.markdown(f"- **사용 방식:** {item.get('usage', '')}")
-                st.markdown(f"- **소비자 심리:** {item.get('psychology', '')}")
-                st.markdown(f"- **전환 기여 이유:** {item.get('contribution', '')}")
+            render_card(
+                title=item.get('element', '심리 요소'),
+                bullet_dict={
+                    "사용 방식": item.get('usage', ''),
+                    "소비자 심리": item.get('psychology', ''),
+                    "전환 기여 이유": item.get('contribution', '')
+                }
+            )
 
     formula = res.get("success_formula", {})
     if formula:
         st.markdown("#### 6. 반복 활용 가능한 성공 공식 추출")
         st.success(f"**📈 이 광고가 성과가 날 가능성이 높은 이유:**\n{formula.get('why_it_works', '')}")
-        with st.container():
-            st.markdown(f"**🏆 공식명:** {formula.get('formula_name', '')}")
-            st.markdown(f"- **광고 구조:** {formula.get('formula_structure', '')}")
-            st.markdown(f"- **적합한 상황:** {formula.get('suitable_situation', '')}")
-            st.markdown(f"- **핵심 심리:** {formula.get('core_psychology', '')}")
-            st.markdown(f"- **활용 방법:** {formula.get('how_to_use', '')}")
+        render_card(
+            title=f"🏆 공식명: {formula.get('formula_name', '')}",
+            bullet_dict={
+                "광고 구조": formula.get('formula_structure', ''),
+                "적합한 상황": formula.get('suitable_situation', ''),
+                "핵심 심리": formula.get('core_psychology', ''),
+                "활용 방법": formula.get('how_to_use', '')
+            }
+        )
 
 def render_plan_report(plan: dict):
     st.markdown("#### 👉 1. 우리 브랜드 적용 방향")
     bd = plan.get("step5_brand_direction", {}) or {}
-    with st.container():
-        st.markdown(f"- **심리 구조 유지 방안:** {bd.get('psychology_match', '')}")
-        st.markdown(f"- **우리 고객의 실제 고민:** {bd.get('customer_worry', '')}")
-        st.markdown(f"- **카테고리 상황 설정:** {bd.get('category_situation', '')}")
-        st.warning(f"🚨 **심의 리스크 회피:** {bd.get('risk_management', '')}")
+    render_card("적용 가이드라인", {
+        "심리 구조 유지 방안": bd.get('psychology_match', ''),
+        "우리 고객의 실제 고민": bd.get('customer_worry', ''),
+        "카테고리 상황 설정": bd.get('category_situation', ''),
+        "🚨 심의 리스크 회피": bd.get('risk_management', '')
+    })
 
     st.markdown("#### 👉 2. 우리 브랜드용 고전환 광고 공식")
     formulas = plan.get("step6_ad_formulas", [])
     for f in formulas:
-        with st.container():
-            st.markdown(f"**📌 공식명: {f.get('formula_name', '')}**")
-            st.markdown(f"- **핵심 심리:** {f.get('core_psychology', '')}")
-            st.markdown(f"- **적합 상황:** {f.get('suitable_situation', '')}")
-            st.markdown(f"- **Hook 예시:** {f.get('hook_example', '')}")
-            st.markdown(f"- **대본 전개:** {f.get('script_flow', '')}")
-            st.markdown(f"- **필수 화면:** {f.get('required_screen', '')}")
-            st.markdown(f"- **CTA 방식:** {f.get('cta_method', '')}")
+        render_card(
+            title=f.get("formula_name", "공식명"),
+            bullet_dict={
+                "핵심 심리": f.get("core_psychology", ""),
+                "적합 상황": f.get("suitable_situation", ""),
+                "Hook 예시": f.get("hook_example", ""),
+                "대본 전개": f.get("script_flow", ""),
+                "필수 화면": f.get("required_screen", ""),
+                "CTA 방식": f.get("cta_method", "")
+            }
+        )
 
     st.markdown("#### 👉 3. 신규 광고 대본 (풀버전 5종)")
     scripts = plan.get("step7_new_scripts", [])
     for s in scripts:
-        with st.container():
-            st.markdown(f"**🎬 컨셉명: {s.get('concept', '')}**")
-            st.markdown(f"**화면 구성:**\n{s.get('screen_composition', '')}")
-            st.markdown(f"**대사(전문):**\n> {s.get('dialogue', '')}")
-            st.markdown(f"**자막:** {s.get('subtitle', '')}")
-            st.markdown(f"**CTA:** {s.get('cta', '')}")
+        render_script_card(
+            title=f"🎬 컨셉명: {s.get('concept', '')}",
+            script_dict={
+                "화면 구성": s.get("screen_composition", ""),
+                "대사(전문)": s.get("dialogue", ""),
+                "자막": s.get("subtitle", ""),
+                "CTA": s.get("cta", "")
+            }
+        )
 
     st.markdown("#### 👉 4. 치트키 워딩 리스트")
     cheats = plan.get("step8_cheat_keys", [])
     if cheats:
         for c in cheats:
-            with st.container():
-                st.markdown(f"**🏷️ {c.get('category', '기타')}**")
-                st.markdown(f"- {c.get('wording', '')}")
+            render_cheat_card(
+                title=f"🏷️ {c.get('category', '기타')}",
+                word_string=c.get('wording', '')
+            )
 
     st.markdown("#### 👉 5. 🎯 최종 우선순위 (제작 가이드)")
     for prio in plan.get("step9_final_priority", []) or []:
