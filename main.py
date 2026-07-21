@@ -27,14 +27,14 @@ st.markdown("""
     div[data-baseweb="select"] > div:focus-within { box-shadow: 0 0 0 1px #007AFF !important; border-color: #007AFF !important; }
     hr { border-color: #E5E5EA !important; margin: 2rem 0; }
     
-    /* 완벽하게 살아난 깔끔한 카드 스타일 */
-    div[data-testid="stContainer"] { 
-        background-color: #FFFFFF !important; 
-        border: 1px solid #E5E5EA !important; 
-        border-radius: 12px !important; 
-        padding: 1.5rem !important; 
-        box-shadow: 0 2px 5px rgba(0,0,0,0.03) !important;
-        margin-bottom: 1.2rem !important;
+    /* 🌟 확실하게 눈에 띄는 하얀색 카드 박스 디자인 */
+    div.element-container:has(> div.stMarkdown), div[data-testid="stVerticalBlock"] > div[data-testid="stContainer"] {
+        background-color: #FFFFFF !important;
+        border: 1px solid #E5E5EA !important;
+        border-radius: 12px !important;
+        padding: 1.25rem !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02) !important;
+        margin-bottom: 1rem !important;
     }
     </style>
 """, unsafe_allow_html=True)
