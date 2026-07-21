@@ -18,12 +18,11 @@ def to_kst_str(dt, fmt="%Y-%m-%d %H:%M"):
     if dt is None: return ""
     return dt.replace(tzinfo=timezone.utc).astimezone(KST).strftime(fmt)
 
-# 테이블 대신 사용할 카드 렌더링 함수
+# 일반적인 짧은 항목용 카드
 def render_card(title, bullet_dict):
     lis = ""
     for k, v in bullet_dict.items():
         if v:
-            # 딕셔너리 값에 줄바꿈이 있을 경우 HTML <br>로 변환하여 예쁘게 출력
             formatted_v = html.escape(str(v)).replace('\n', '<br>')
             lis += f"<li><strong>{html.escape(k)}:</strong> <span class='card-content'>{formatted_v}</span></li>"
             
@@ -35,6 +34,21 @@ def render_card(title, bullet_dict):
     """
     st.markdown(card_html, unsafe_allow_html=True)
 
+# 텍스트가 아주 긴 '대본'을 위한 시원시원한 전용 카드
+def render_script_card(title, script_dict):
+    content = f"<div class='custom-card'><div class='custom-card-title'>{html.escape(str(title))}</div>"
+    for k, v in script_dict.items():
+        if v:
+            formatted_v = html.escape(str(v)).replace('\n', '<br>')
+            content += f"""
+            <div style='margin-bottom: 16px;'>
+                <strong style='color: #1C1C1E; font-size: 1rem;'>{html.escape(k)}:</strong><br>
+                <div style='color: #3A3A3C; line-height: 1.8; margin-top: 6px; padding: 12px; background-color: #F3F4F6; border-radius: 8px;'>{formatted_v}</div>
+            </div>
+            """
+    content += "</div>"
+    st.markdown(content, unsafe_allow_html=True)
+
 st.markdown("""
     <style>
     .stApp { background-color: #F9FAFB; }
@@ -45,12 +59,11 @@ st.markdown("""
     hr { border-color: #E5E5EA !important; margin: 2rem 0; }
     div[data-testid="stContainer"] { background-color: #FFFFFF !important; border: 1px solid #E5E5EA !important; border-radius: 12px !important; padding: 1.5rem !important; box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important; }
     
-    /* 카드형 UI 스타일 */
     .custom-card {
         border: 1px solid #E5E5EA;
         border-radius: 10px;
-        padding: 20px;
-        margin-bottom: 16px;
+        padding: 24px;
+        margin-bottom: 20px;
         background-color: #FFFFFF;
         box-shadow: 0 2px 4px rgba(0,0,0,0.02);
     }
@@ -58,28 +71,14 @@ st.markdown("""
         font-weight: 700;
         color: #1C1C1E;
         margin-bottom: 16px;
-        font-size: 1.15rem;
+        font-size: 1.2rem;
+        border-bottom: 1px solid #E5E5EA;
+        padding-bottom: 10px;
     }
-    .custom-card ul {
-        margin-bottom: 0;
-        padding-left: 12px;
-        list-style-type: disc;
-    }
-    .custom-card li {
-        margin-bottom: 12px;
-        color: #3A3A3C;
-        font-size: 0.95rem;
-        line-height: 1.7;
-    }
-    .custom-card li strong {
-        color: #1C1C1E;
-        display: inline-block;
-    }
-    .card-content {
-        display: block;
-        padding-top: 4px;
-        padding-bottom: 8px;
-    }
+    .custom-card ul { margin-bottom: 0; padding-left: 12px; list-style-type: disc; }
+    .custom-card li { margin-bottom: 12px; color: #3A3A3C; font-size: 0.95rem; line-height: 1.7; }
+    .custom-card li strong { color: #1C1C1E; display: inline-block; min-width: 100px; }
+    .card-content { display: inline-block; padding-top: 2px; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -203,9 +202,10 @@ def render_plan_report(plan: dict):
     st.markdown("#### 👉 3. 신규 광고 대본 (풀버전 5종)")
     scripts = plan.get("step7_new_scripts", [])
     for s in scripts:
-        render_card(
+        # 대본 전용 렌더링 함수 사용하여 가독성 극대화
+        render_script_card(
             title=f"🎬 컨셉명: {s.get('concept', '')}",
-            bullet_dict={
+            script_dict={
                 "화면 구성": s.get("screen_composition", ""),
                 "대사(전문)": s.get("dialogue", ""),
                 "자막": s.get("subtitle", ""),
@@ -216,7 +216,6 @@ def render_plan_report(plan: dict):
     st.markdown("#### 👉 4. 치트키 워딩 리스트")
     cheats = plan.get("step8_cheat_keys", [])
     if cheats:
-        # 카테고리별로 묶어서 카드 렌더링
         cheat_dict = {}
         for c in cheats:
             cat = c.get("category", "기타")
@@ -336,7 +335,8 @@ def render_home():
     st.write("") 
     if st.button("🔍 광고 레퍼런스 심층 분석", type="primary", use_container_width=True):
         if not videos: return st.warning("영상을 업로드해주세요.")
-        with st.spinner("광고 레퍼런스의 심리 구조와 타임라인을 분석하고 있습니다... (약 30초~1분 소요)"):
+        # 물결표(~) 기호 제거하여 마크다운 취소선 방지
+        with st.spinner("광고 레퍼런스의 심리 구조와 타임라인을 분석하고 있습니다... (약 30-60초 소요)"):
             v_path = None
             if videos:
                 ext = os.path.splitext(videos[0].name)[1]
@@ -366,7 +366,8 @@ def render_home():
             p = db.get_product(st.session_state.get("selected_product_id"))
             if not p: return st.warning("적용할 '제품'을 상단에서 먼저 선택해 주세요.")
             
-            with st.spinner("레퍼런스를 기반으로 디벨롭된 30~40초 풀버전 대본 5개를 꽉꽉 채워 생성 중입니다... (약 1~2분 정도 소요될 수 있습니다)"):
+            # 물결표(~) 기호 제거하여 마크다운 취소선 방지
+            with st.spinner("레퍼런스를 기반으로 30-40초 분량의 디벨롭된 풀버전 대본 5개를 생성 중입니다... (약 1-2분 소요)"):
                 img_paths = []
                 if p.image_paths:
                     try: img_paths = json.loads(p.image_paths)
