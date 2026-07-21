@@ -18,42 +18,68 @@ def to_kst_str(dt, fmt="%Y-%m-%d %H:%M"):
     if dt is None: return ""
     return dt.replace(tzinfo=timezone.utc).astimezone(KST).strftime(fmt)
 
-def render_table(df: pd.DataFrame):
-    thead = "".join(f"<th>{html.escape(str(col))}</th>" for col in df.columns)
-    rows = ""
-    for _, row in df.iterrows():
-        cells = "".join(f"<td>{html.escape(str(val))}</td>" for val in row)
-        rows += f"<tr>{cells}</tr>"
-    table_html = f"""
-    <div class="custom-table-wrap">
-        <table class="custom-table">
-            <thead><tr>{thead}</tr></thead>
-            <tbody>{rows}</tbody>
-        </table>
+# 테이블 대신 사용할 카드 렌더링 함수
+def render_card(title, bullet_dict):
+    lis = ""
+    for k, v in bullet_dict.items():
+        if v:
+            # 딕셔너리 값에 줄바꿈이 있을 경우 HTML <br>로 변환하여 예쁘게 출력
+            formatted_v = html.escape(str(v)).replace('\n', '<br>')
+            lis += f"<li><strong>{html.escape(k)}:</strong> <span class='card-content'>{formatted_v}</span></li>"
+            
+    card_html = f"""
+    <div class="custom-card">
+        <div class="custom-card-title">{html.escape(str(title))}</div>
+        <ul>{lis}</ul>
     </div>
     """
-    st.markdown(table_html, unsafe_allow_html=True)
+    st.markdown(card_html, unsafe_allow_html=True)
 
 st.markdown("""
     <style>
-    .stApp { background-color: #FFFFFF; }
+    .stApp { background-color: #F9FAFB; }
     button[kind="primary"] { background-color: #007AFF !important; color: white !important; border: none !important; border-radius: 8px !important; }
     button[kind="primary"]:hover { background-color: #005bb5 !important; }
     *:focus { outline: none !important; box-shadow: none !important; border-color: transparent !important; }
     div[data-baseweb="select"] > div:focus-within { box-shadow: 0 0 0 1px #007AFF !important; border-color: #007AFF !important; }
     hr { border-color: #E5E5EA !important; margin: 2rem 0; }
-    .custom-table-wrap { width: 100%; overflow-x: auto; margin-bottom: 1rem; border: 1px solid #E5E5EA; border-radius: 8px; padding-bottom: 0; }
-    .custom-table { border-collapse: collapse; width: max-content; min-width: 100%; margin-bottom: 0; }
-    .custom-table-wrap::-webkit-scrollbar { height: 6px; }
-    .custom-table-wrap::-webkit-scrollbar-thumb { background-color: #C7C7CC; border-radius: 3px; }
-    .custom-table-wrap::-webkit-scrollbar-track { background-color: transparent; }
-    .custom-table th { background-color: #EAEAEA; color: #1C1C1E; font-weight: 600; font-size: 0.95rem; text-align: left; padding: 12px; border-bottom: 2px solid #D1D1D6; white-space: nowrap; }
-    .custom-table td { padding: 12px; border-bottom: 1px solid #E5E5EA; color: #3A3A3C; font-size: 0.9rem; line-height: 1.5; white-space: nowrap; }
-    div[data-testid="stContainer"] { border-color: #E5E5EA !important; border-radius: 12px !important; padding: 1rem !important; }
-    .timeline-box { border: 1px solid #E5E5EA; border-radius: 8px; padding: 16px; margin-bottom: 16px; background-color: #FAFAFC; }
-    .timeline-time { font-weight: 700; color: #007AFF; margin-bottom: 12px; font-size: 1.1rem; }
-    .timeline-item { margin-bottom: 8px; font-size: 0.95rem; }
-    .timeline-item strong { color: #1C1C1E; display: inline-block; width: 130px; }
+    div[data-testid="stContainer"] { background-color: #FFFFFF !important; border: 1px solid #E5E5EA !important; border-radius: 12px !important; padding: 1.5rem !important; box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important; }
+    
+    /* 카드형 UI 스타일 */
+    .custom-card {
+        border: 1px solid #E5E5EA;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 16px;
+        background-color: #FFFFFF;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .custom-card-title {
+        font-weight: 700;
+        color: #1C1C1E;
+        margin-bottom: 16px;
+        font-size: 1.15rem;
+    }
+    .custom-card ul {
+        margin-bottom: 0;
+        padding-left: 12px;
+        list-style-type: disc;
+    }
+    .custom-card li {
+        margin-bottom: 12px;
+        color: #3A3A3C;
+        font-size: 0.95rem;
+        line-height: 1.7;
+    }
+    .custom-card li strong {
+        color: #1C1C1E;
+        display: inline-block;
+    }
+    .card-content {
+        display: block;
+        padding-top: 4px;
+        padding-bottom: 8px;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -64,99 +90,147 @@ def render_analysis_report(res: dict):
 
     if res.get("scene_analysis"):
         st.markdown("#### 1. 장면별 광고 분석")
+        st.caption("대본을 그대로 반복하지 않고, 구간별로 왜 이렇게 만들었는지를 분석합니다.")
         for scene in res["scene_analysis"]:
-            html_content = f"""
-            <div class="timeline-box">
-                <div class="timeline-time">{html.escape(scene.get('timestamp', ''))}</div>
-                <div class="timeline-item"><strong>광고 내용</strong> : {html.escape(scene.get('ad_content', ''))}</div>
-                <div class="timeline-item"><strong>소비자 심리</strong> : {html.escape(scene.get('consumer_psychology', ''))}</div>
-                <div class="timeline-item"><strong>전환 역할</strong> : {html.escape(scene.get('conversion_role', ''))}</div>
-                <div class="timeline-item"><strong>핵심 메시지</strong> : {html.escape(scene.get('core_message', ''))}</div>
-                <div class="timeline-item"><strong>타 제품 적용 방식</strong> : {html.escape(scene.get('application_method', ''))}</div>
-            </div>
-            """
-            st.markdown(html_content, unsafe_allow_html=True)
+            render_card(
+                title=scene.get('timestamp', ''),
+                bullet_dict={
+                    "광고 내용": scene.get('ad_content', ''),
+                    "소비자 심리": scene.get('consumer_psychology', ''),
+                    "전환 역할": scene.get('conversion_role', ''),
+                    "핵심 메시지": scene.get('core_message', ''),
+                    "타 제품 적용 방식": scene.get('application_method', '')
+                }
+            )
 
     strat = res.get("strategy_analysis", {})
     if strat:
         st.markdown("#### 2. 광고 전략 분석")
-        st.markdown(f"- **타깃 고객:** {strat.get('target_audience', '')}")
-        st.markdown(f"- **고객의 기존 고민:** {strat.get('customer_pain', '')}")
-        st.markdown(f"- **카테고리 불편:** {strat.get('category_inconvenience', '')}")
-        st.markdown(f"- **부정적 인식:** {strat.get('negative_perception', '')}")
-        st.markdown(f"- **구매 망설임 이유:** {strat.get('hesitation_reason', '')}")
-        st.markdown(f"- **제거한 진입장벽:** {strat.get('barrier_removed', '')}")
-        st.markdown(f"- **차별화 포지셔닝:** {strat.get('positioning', '')}")
-        st.info(f"💡 **광고 전략 핵심:** {strat.get('core_strategy', '')}")
+        st.caption("'무슨 제품인지'가 아니라 '왜 이렇게 만들었는지'를 분석합니다.")
+        render_card("전략 상세", {
+            "타깃 고객": strat.get('target_audience', ''),
+            "고객의 기존 고민": strat.get('customer_pain', ''),
+            "카테고리 불편": strat.get('category_inconvenience', ''),
+            "부정적 인식": strat.get('negative_perception', ''),
+            "구매 망설임 이유": strat.get('hesitation_reason', ''),
+            "제거한 진입장벽": strat.get('barrier_removed', ''),
+            "차별화 포지셔닝": strat.get('positioning', ''),
+            "💡 광고 전략 핵심": strat.get('core_strategy', '')
+        })
 
     hook = res.get("hook_analysis", {})
     if hook:
         st.markdown("#### 3. Hook 상세 분석")
-        st.markdown(f"- **Hook 유형:** {hook.get('type', '')}")
-        st.markdown(f"- **Hook 문장:** {hook.get('sentence', '')}")
-        st.markdown(f"- **첫 문장/장면 선택 이유:** {hook.get('reason_chosen', '')}")
-        st.markdown(f"- **첫 3초 자극 심리:** {hook.get('first_3s_psychology', '')}")
-        st.markdown(f"- **시청 지속 이유:** {hook.get('scroll_stop_reason', '')}")
-        st.markdown(f"- **사용된 공식:** {hook.get('hook_formula', '')}")
-        st.markdown(f"- **전환 미치는 영향:** {hook.get('conversion_impact', '')}")
+        render_card("Hook 분석 요소", {
+            "Hook 유형": hook.get('type', ''),
+            "Hook 문장": hook.get('sentence', ''),
+            "첫 문장/장면 선택 이유": hook.get('reason_chosen', ''),
+            "첫 3초 자극 심리": hook.get('first_3s_psychology', ''),
+            "시청 지속 이유": hook.get('scroll_stop_reason', ''),
+            "사용된 공식": hook.get('hook_formula', ''),
+            "전환 미치는 영향": hook.get('conversion_impact', '')
+        })
 
     struct = res.get("structure_analysis", {})
     if struct:
         st.markdown("#### 4. 광고 구조 분해")
+        st.caption("Hook → Problem → Solution → Proof → CTA 단계별 구조입니다.")
         stages = struct.get("stages", [])
-        if stages:
-            df_stages = pd.DataFrame(stages)
-            df_stages.rename(columns={"stage": "단계", "ad_content": "광고 내용", "consumer_psychology": "소비자 심리", "conversion_role": "전환 역할"}, inplace=True)
-            render_table(df_stages)
-        st.markdown(f"**📍 왜 이 순서로 배치했는가:** {struct.get('why_this_order', '')}")
-        st.markdown(f"**🎬 영상 연출 포인트:** {struct.get('visual_direction', '')}")
+        for stage in stages:
+            render_card(
+                title=stage.get('stage', '구조 단계'),
+                bullet_dict={
+                    "광고 내용": stage.get('ad_content', ''),
+                    "소비자 심리": stage.get('consumer_psychology', ''),
+                    "전환 역할": stage.get('conversion_role', '')
+                }
+            )
+        st.info(f"📍 **왜 이 순서로 배치했는가:** {struct.get('why_this_order', '')}")
+        st.info(f"🎬 **영상 연출 포인트:** {struct.get('visual_direction', '')}")
 
     psych = res.get("psychology_analysis", [])
     if psych:
         st.markdown("#### 5. 구매 심리 분석")
-        df_psych = pd.DataFrame(psych)
-        df_psych.rename(columns={"element": "분석 요소", "usage": "사용 방식", "psychology": "소비자 심리", "contribution": "전환 기여 이유"}, inplace=True)
-        render_table(df_psych)
+        for item in psych:
+            render_card(
+                title=item.get('element', '심리 요소'),
+                bullet_dict={
+                    "사용 방식": item.get('usage', ''),
+                    "소비자 심리": item.get('psychology', ''),
+                    "전환 기여 이유": item.get('contribution', '')
+                }
+            )
 
     formula = res.get("success_formula", {})
     if formula:
         st.markdown("#### 6. 반복 활용 가능한 성공 공식 추출")
         st.success(f"**📈 이 광고가 성과가 날 가능성이 높은 이유:**\n{formula.get('why_it_works', '')}")
-        st.markdown(f"- **공식명:** {formula.get('formula_name', '')}")
-        st.markdown(f"- **광고 구조:** {formula.get('formula_structure', '')}")
-        st.markdown(f"- **적합한 상황:** {formula.get('suitable_situation', '')}")
-        st.markdown(f"- **핵심 심리:** {formula.get('core_psychology', '')}")
-        st.markdown(f"- **활용 방법:** {formula.get('how_to_use', '')}")
+        render_card(
+            title=f"🏆 공식명: {formula.get('formula_name', '')}",
+            bullet_dict={
+                "광고 구조": formula.get('formula_structure', ''),
+                "적합한 상황": formula.get('suitable_situation', ''),
+                "핵심 심리": formula.get('core_psychology', ''),
+                "활용 방법": formula.get('how_to_use', '')
+            }
+        )
 
 def render_plan_report(plan: dict):
     st.markdown("#### 👉 1. 우리 브랜드 적용 방향")
     bd = plan.get("step5_brand_direction", {}) or {}
-    st.markdown(f"- **심리 구조 유지 방안:** {bd.get('psychology_match', '')}")
-    st.markdown(f"- **우리 고객의 실제 고민:** {bd.get('customer_worry', '')}")
-    st.markdown(f"- **카테고리 상황 설정:** {bd.get('category_situation', '')}")
-    st.warning(f"🚨 **심의 리스크 회피:** {bd.get('risk_management', '')}")
+    render_card("적용 가이드라인", {
+        "심리 구조 유지 방안": bd.get('psychology_match', ''),
+        "우리 고객의 실제 고민": bd.get('customer_worry', ''),
+        "카테고리 상황 설정": bd.get('category_situation', ''),
+        "🚨 심의 리스크 회피": bd.get('risk_management', '')
+    })
 
     st.markdown("#### 👉 2. 우리 브랜드용 고전환 광고 공식")
-    if plan.get("step6_ad_formulas"):
-        df_form = pd.DataFrame(plan["step6_ad_formulas"])
-        df_form.rename(columns={"formula_name": "공식명", "core_psychology": "핵심 심리", "suitable_situation": "적합 상황", "hook_example": "Hook 예시", "script_flow": "대본 전개", "required_screen": "필수 화면", "cta_method": "CTA 방식"}, inplace=True)
-        render_table(df_form)
+    formulas = plan.get("step6_ad_formulas", [])
+    for f in formulas:
+        render_card(
+            title=f.get("formula_name", "공식명"),
+            bullet_dict={
+                "핵심 심리": f.get("core_psychology", ""),
+                "적합 상황": f.get("suitable_situation", ""),
+                "Hook 예시": f.get("hook_example", ""),
+                "대본 전개": f.get("script_flow", ""),
+                "필수 화면": f.get("required_screen", ""),
+                "CTA 방식": f.get("cta_method", "")
+            }
+        )
 
-    st.markdown("#### 👉 3. 신규 광고 대본 제작 (예시)")
-    if plan.get("step7_new_scripts"):
-        df_scripts = pd.DataFrame(plan["step7_new_scripts"])
-        df_scripts.rename(columns={"concept": "컨셉명", "screen_composition": "화면 구성", "dialogue": "대사", "subtitle": "자막", "cta": "CTA"}, inplace=True)
-        render_table(df_scripts)
+    st.markdown("#### 👉 3. 신규 광고 대본 (풀버전 5종)")
+    scripts = plan.get("step7_new_scripts", [])
+    for s in scripts:
+        render_card(
+            title=f"🎬 컨셉명: {s.get('concept', '')}",
+            bullet_dict={
+                "화면 구성": s.get("screen_composition", ""),
+                "대사(전문)": s.get("dialogue", ""),
+                "자막": s.get("subtitle", ""),
+                "CTA": s.get("cta", "")
+            }
+        )
 
     st.markdown("#### 👉 4. 치트키 워딩 리스트")
-    if plan.get("step8_cheat_keys"):
-        df_cheat = pd.DataFrame(plan["step8_cheat_keys"])
-        df_cheat.rename(columns={"category": "카테고리", "wording": "워딩"}, inplace=True)
-        render_table(df_cheat)
+    cheats = plan.get("step8_cheat_keys", [])
+    if cheats:
+        # 카테고리별로 묶어서 카드 렌더링
+        cheat_dict = {}
+        for c in cheats:
+            cat = c.get("category", "기타")
+            word = c.get("wording", "")
+            if cat not in cheat_dict: cheat_dict[cat] = []
+            if word: cheat_dict[cat].append(word)
+            
+        for cat, words in cheat_dict.items():
+            render_card(title=f"🏷️ {cat}", bullet_dict={"추천 워딩 리스트": " / ".join(words)})
 
     st.markdown("#### 👉 5. 🎯 최종 우선순위 (제작 가이드)")
     for prio in plan.get("step9_final_priority", []) or []:
-        st.markdown(f"**{prio.get('priority', '')}:** {prio.get('reason', '')}")
+        st.info(f"**{prio.get('priority', '')}:** {prio.get('reason', '')}")
+
 
 def _load_analysis_dict(analysis) -> dict | None:
     if not analysis: return None
@@ -202,7 +276,7 @@ def render_nav():
 
 @st.dialog("📁 새 브랜드 만들기")
 def create_project_dialog():
-    new_p = st.text_input("브랜드명 (예: 올리브영, 나이키)")
+    new_p = st.text_input("브랜드명")
     if st.button("생성하기", type="primary", use_container_width=True):
         if not new_p.strip(): st.warning("브랜드명을 입력해주세요.")
         else:
@@ -239,7 +313,8 @@ def render_home():
     
     c1, c2 = st.columns([5, 1], vertical_alignment="bottom")
     with c1:
-        proj_id = st.selectbox("브랜드 선택", options=[None] + list(projects.keys()), format_func=lambda x: projects.get(x, "선택 안 함"))
+        proj_options = list(projects.keys())
+        proj_id = st.selectbox("브랜드 선택", options=proj_options, format_func=lambda x: projects.get(x, ""))
         st.session_state["selected_project_id"] = proj_id
     with c2:
         if st.button("+ 새 브랜드", use_container_width=True): create_project_dialog()
@@ -248,7 +323,8 @@ def render_home():
         products = {p.id: p.name for p in db.list_products(proj_id)}
         c3, c4 = st.columns([5, 1], vertical_alignment="bottom")
         with c3:
-            prod_id = st.selectbox("제품 선택 (적용 단계에만 사용)", options=[None] + list(products.keys()), format_func=lambda x: products.get(x, "선택 안 함"))
+            prod_options = list(products.keys())
+            prod_id = st.selectbox("제품 선택", options=prod_options, format_func=lambda x: products.get(x, ""))
             st.session_state["selected_product_id"] = prod_id
         with c4:
             if st.button("+ 새 제품", use_container_width=True): create_product_dialog(proj_id)
@@ -260,7 +336,7 @@ def render_home():
     st.write("") 
     if st.button("🔍 광고 레퍼런스 심층 분석", type="primary", use_container_width=True):
         if not videos: return st.warning("영상을 업로드해주세요.")
-        with st.spinner("광고 레퍼런스의 심리 구조와 타임라인을 분석하고 있습니다..."):
+        with st.spinner("광고 레퍼런스의 심리 구조와 타임라인을 분석하고 있습니다... (약 30초~1분 소요)"):
             v_path = None
             if videos:
                 ext = os.path.splitext(videos[0].name)[1]
@@ -272,7 +348,8 @@ def render_home():
                 res, _ = gemini.analyze_reference("", v_path)
                 st.session_state["analysis_res"] = res
                 st.session_state["plan_res"] = None
-            except Exception as e: st.error(str(e))
+            except Exception as e: 
+                st.error(f"분석 중 오류가 발생했습니다: {str(e)}")
             finally:
                 if v_path and os.path.exists(v_path):
                     try: os.remove(v_path)
@@ -288,20 +365,24 @@ def render_home():
         if st.button("✨ 우리 브랜드 적용 기획안 생성", type="primary"):
             p = db.get_product(st.session_state.get("selected_product_id"))
             if not p: return st.warning("적용할 '제품'을 상단에서 먼저 선택해 주세요.")
-            with st.spinner("레퍼런스를 기반으로 디벨롭된 30~40초 풀버전 대본 5개를 생성 중입니다..."):
+            
+            with st.spinner("레퍼런스를 기반으로 디벨롭된 30~40초 풀버전 대본 5개를 꽉꽉 채워 생성 중입니다... (약 1~2분 정도 소요될 수 있습니다)"):
                 img_paths = []
                 if p.image_paths:
                     try: img_paths = json.loads(p.image_paths)
                     except: pass
                     
-                plan, _ = gemini.generate_plan(
-                    analysis_summary=prompts.summarize_analysis_for_plan(res), 
-                    product_name=p.name, 
-                    product_usp_notes=p.usp_notes or "",
-                    landing_url=p.landing_url or "",
-                    image_paths=img_paths
-                )
-                st.session_state["plan_res"] = plan
+                try:
+                    plan, _ = gemini.generate_plan(
+                        analysis_summary=prompts.summarize_analysis_for_plan(res), 
+                        product_name=p.name, 
+                        product_usp_notes=p.usp_notes or "",
+                        landing_url=p.landing_url or "",
+                        image_paths=img_paths
+                    )
+                    st.session_state["plan_res"] = plan
+                except Exception as e:
+                    st.error(f"기획안 생성 중 오류가 발생했습니다: {str(e)}")
                     
         plan = st.session_state.get("plan_res")
         if plan:
