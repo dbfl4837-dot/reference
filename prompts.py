@@ -14,7 +14,7 @@ ANALYSIS_JSON_SCHEMA_HINT = """
   "raw_script": "대본 전문 (타임라인/자막 표시 없이 화자의 대사만 쭉 이어진 줄글 형태. 복붙용)",
   "scene_analysis": [
     {
-      "timestamp": "00:00~00:04",
+      "timestamp": "00:00 - 00:04",
       "ad_content": "광고 내용 분석",
       "consumer_psychology": "소비자 심리 분석",
       "conversion_role": "전환 역할 (예: Hook, Problem 등)",
@@ -67,8 +67,9 @@ PLAN_SYSTEM_INSTRUCTION = (
     "우리 제품에 적용할 때는 원본 레퍼런스 광고의 뼈대와 전개 방식을 적극적으로 디벨롭하되, 우리 제품의 상세 정보를 자연스럽게 녹여내고 단정적 표현(심의 리스크)은 철저히 배제하세요.\n\n"
     "[절대 준수 사항]\n"
     "1. 'step6_ad_formulas' (고전환 공식)는 최소 3개 이상 반드시 작성하세요.\n"
-    "2. 'step7_new_scripts' (신규 대본)는 원본 레퍼런스 대본을 기반으로 디벨롭하여, **30~40초 분량의 상세한 '풀버전 대본'을 정확히 5개** 작성하세요. 요약이나 중략 없이 시작부터 끝(CTA)까지 대사가 꽉 채워져 있어야 합니다.\n"
-    "3. 'step9_final_priority' (최종 우선순위)는 반드시 1순위, 2순위, 3순위까지 총 3개를 작성해야 합니다."
+    "2. 'step7_new_scripts' (신규 대본)는 원본 레퍼런스 대본을 기반으로 디벨롭하여, **30-40초 분량의 상세한 '풀버전 대본'을 정확히 5개** 작성하세요. 요약이나 중략 없이 시작부터 끝(CTA)까지 대사가 꽉 채워져 있어야 합니다.\n"
+    "3. 'step8_cheat_keys' (치트키 워딩 리스트)는 카테고리별로 **반드시 5개 이상의 추천 워딩**을 꽉꽉 채워 작성하세요.\n"
+    "4. 'step9_final_priority' (최종 우선순위)는 반드시 1순위, 2순위, 3순위까지 총 3개를 작성해야 합니다."
 )
 
 PLAN_JSON_SCHEMA_HINT = """
@@ -94,16 +95,16 @@ PLAN_JSON_SCHEMA_HINT = """
     {
       "concept": "컨셉명 (레퍼런스 기반 디벨롭 방향)",
       "screen_composition": "화면 구성 및 연출 디렉션 (상세히)",
-      "dialogue": "전체 대사 전문 (30~40초 분량, 도입부부터 마무리까지 빈틈없이 꽉 채운 풀버전)",
+      "dialogue": "전체 대사 전문 (30-40초 분량, 도입부부터 마무리까지 빈틈없이 꽉 채운 풀버전)",
       "subtitle": "영상에 들어갈 핵심 강조 자막",
       "cta": "마지막 구매 유도 CTA 멘트 및 화면"
     }
   ],
   "step8_cheat_keys": [
-    {"category": "후킹", "wording": "짧은 문구"},
-    {"category": "고객 고민 자극", "wording": "짧은 문구"},
-    {"category": "제품 신뢰", "wording": "짧은 문구"},
-    {"category": "구매 유도", "wording": "짧은 문구"}
+    {"category": "후킹", "wording": "워딩1 / 워딩2 / 워딩3 / 워딩4 / 워딩5"},
+    {"category": "고객 고민 자극", "wording": "워딩1 / 워딩2 / 워딩3 / 워딩4 / 워딩5"},
+    {"category": "제품 신뢰", "wording": "워딩1 / 워딩2 / 워딩3 / 워딩4 / 워딩5"},
+    {"category": "구매 유도", "wording": "워딩1 / 워딩2 / 워딩3 / 워딩4 / 워딩5"}
   ],
   "step9_final_priority": [
     {"priority": "1순위 (예: 네고형)", "reason": "제작 추천 이유 상세 설명"},
