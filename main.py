@@ -104,7 +104,8 @@ st.markdown("""
 def render_analysis_report(res: dict):
     st.markdown("#### 📺 원본 광고 대본 전문")
     st.info("우측 상단의 복사 아이콘을 클릭하여 기획안에 바로 붙여넣으세요.")
-    st.code(res.get("raw_script", ""), language="text")
+    with st.container(border=True):
+        st.code(res.get("raw_script", ""), language="text")
 
     if res.get("scene_analysis"):
         st.markdown("#### 1. 장면별 광고 분석")
@@ -243,7 +244,14 @@ def render_plan_report(plan: dict):
             if word: cheat_dict[cat].append(word)
 
         for cat, words in cheat_dict.items():
-            items_html = "".join(f"<li>{html.escape(w)}</li>" for w in words)
+            # 쉼표로 이어진 문구들을 각각 별도 항목으로 분리
+            flat_words = []
+            for w in words:
+                for part in str(w).split(","):
+                    part = part.strip()
+                    if part:
+                        flat_words.append(part)
+            items_html = "".join(f"<li>{html.escape(w)}</li>" for w in flat_words)
             card_html = f"""
             <div class="custom-card">
                 <div class="custom-card-title">🏷️ {html.escape(str(cat))}</div>
