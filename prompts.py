@@ -11,13 +11,13 @@ ANALYSIS_SYSTEM_INSTRUCTION = (
 
 ANALYSIS_JSON_SCHEMA_HINT = """
 {
-  "raw_script": "대본 전문 (타임라인/자막 표시 없이 화자의 대사만 쭉 이어진 줄글 형태. 복붙용)",
+  "raw_script": "대본 전문 (타임라인/자막 표시 없이 화자의 대사만 쭉 이어진 줄글 형태)",
   "scene_analysis": [
     {
       "timestamp": "00:00 - 00:04",
       "ad_content": "광고 내용 분석",
       "consumer_psychology": "소비자 심리 분석",
-      "conversion_role": "전환 역할 (예: Hook, Problem 등)",
+      "conversion_role": "전환 역할",
       "core_message": "핵심 메시지/카피",
       "application_method": "타 제품 적용 방식"
     }
@@ -43,32 +43,32 @@ ANALYSIS_JSON_SCHEMA_HINT = """
   },
   "structure_analysis": {
     "stages": [
-      {"stage": "Hook/Problem/Solution/Proof/CTA 중 하나 기입", "ad_content": "광고 내용 분석", "consumer_psychology": "소비자 심리 분석", "conversion_role": "전환 역할"}
+      {"stage": "Hook/Problem/Solution/Proof/CTA", "ad_content": "광고 내용", "consumer_psychology": "소비자 심리", "conversion_role": "전환 역할"}
     ],
-    "why_this_order": "왜 이 순서로 배치했는가 상세 분석",
-    "visual_direction": "영상 연출 포인트 분석"
+    "why_this_order": "왜 이 순서로 배치했는가",
+    "visual_direction": "영상 연출 포인트"
   },
   "psychology_analysis": [
-    {"element": "분석 요소 (예: Pain Point 자극 방식, Desire 생성 등)", "usage": "광고 속 사용 방식", "psychology": "자극된 소비자 심리", "contribution": "전환 기여 이유"}
+    {"element": "분석 요소", "usage": "사용 방식", "psychology": "소비자 심리", "contribution": "전환 기여 이유"}
   ],
   "success_formula": {
-    "why_it_works": "이 광고가 성과가 날 가능성이 높은 이유 종합",
-    "formula_name": "반복 활용 가능한 공식명 창작",
-    "formula_structure": "광고 구조 (예: 결과 제시 -> 문제 공감 -> 해결책...)",
+    "why_it_works": "성과가 날 가능성이 높은 이유",
+    "formula_name": "공식명",
+    "formula_structure": "광고 구조",
     "suitable_situation": "적합한 상황",
     "core_psychology": "핵심 심리",
-    "how_to_use": "해당 공식을 타 기획에 활용하는 방법"
+    "how_to_use": "활용 방법"
   }
 }
 """
 
 PLAN_SYSTEM_INSTRUCTION = (
     "분석된 레퍼런스의 '성공 구매 심리 구조'를 바탕으로 우리 브랜드에 맞게 재해석한 고전환 광고 기획안을 작성합니다.\n"
-    "우리 제품에 적용할 때는 원본 레퍼런스 광고의 뼈대와 전개 방식을 적극적으로 디벨롭하되, 우리 제품의 상세 정보를 자연스럽게 녹여내고 단정적 표현(심의 리스크)은 철저히 배제하세요.\n\n"
+    "우리 제품에 적용할 때는 원본 레퍼런스 광고의 뼈대와 전개 방식을 적극적으로 디벨롭하되, 우리 제품의 상세 정보를 자연스럽게 녹여내고 단정적 표현은 철저히 배제하세요.\n\n"
     "[절대 준수 사항]\n"
     "1. 'step6_ad_formulas' (고전환 공식)는 최소 3개 이상 반드시 작성하세요.\n"
     "2. 'step7_new_scripts' (신규 대본)는 원본 레퍼런스 대본을 기반으로 디벨롭하여, **30-40초 분량의 상세한 '풀버전 대본'을 정확히 5개** 작성하세요. 요약이나 중략 없이 시작부터 끝(CTA)까지 대사가 꽉 채워져 있어야 합니다.\n"
-    "3. 'step8_cheat_keys' (치트키 워딩 리스트)는 카테고리별로 **반드시 5개 이상의 추천 워딩**을 꽉꽉 채워 작성하세요.\n"
+    "3. 'step8_cheat_keys' (치트키 워딩 리스트)는 카테고리별로 **반드시 5개 이상의 추천 워딩을 쉼표(,)나 줄바꿈으로 구분하여** 꽉 채워 작성하세요.\n"
     "4. 'step9_final_priority' (최종 우선순위)는 반드시 1순위, 2순위, 3순위까지 총 3개를 작성해야 합니다."
 )
 
@@ -93,23 +93,23 @@ PLAN_JSON_SCHEMA_HINT = """
   ],
   "step7_new_scripts": [
     {
-      "concept": "컨셉명 (레퍼런스 기반 디벨롭 방향)",
-      "screen_composition": "화면 구성 및 연출 디렉션 (상세히)",
-      "dialogue": "전체 대사 전문 (30-40초 분량, 도입부부터 마무리까지 빈틈없이 꽉 채운 풀버전)",
-      "subtitle": "영상에 들어갈 핵심 강조 자막",
+      "concept": "컨셉명",
+      "screen_composition": "화면 구성 및 연출 디렉션",
+      "dialogue": "전체 대사 전문 (30-40초 풀버전)",
+      "subtitle": "핵심 강조 자막",
       "cta": "마지막 구매 유도 CTA 멘트 및 화면"
     }
   ],
   "step8_cheat_keys": [
-    {"category": "후킹", "wording": "워딩1 / 워딩2 / 워딩3 / 워딩4 / 워딩5"},
-    {"category": "고객 고민 자극", "wording": "워딩1 / 워딩2 / 워딩3 / 워딩4 / 워딩5"},
-    {"category": "제품 신뢰", "wording": "워딩1 / 워딩2 / 워딩3 / 워딩4 / 워딩5"},
-    {"category": "구매 유도", "wording": "워딩1 / 워딩2 / 워딩3 / 워딩4 / 워딩5"}
+    {"category": "후킹", "wording": "워딩1, 워딩2, 워딩3, 워딩4, 워딩5"},
+    {"category": "고객 고민 자극", "wording": "워딩1, 워딩2, 워딩3, 워딩4, 워딩5"},
+    {"category": "제품 신뢰", "wording": "워딩1, 워딩2, 워딩3, 워딩4, 워딩5"},
+    {"category": "구매 유도", "wording": "워딩1, 워딩2, 워딩3, 워딩4, 워딩5"}
   ],
   "step9_final_priority": [
-    {"priority": "1순위 (예: 네고형)", "reason": "제작 추천 이유 상세 설명"},
-    {"priority": "2순위 (예: 체감형)", "reason": "제작 추천 이유 상세 설명"},
-    {"priority": "3순위 (예: 공감형)", "reason": "제작 추천 이유 상세 설명"}
+    {"priority": "1순위", "reason": "제작 추천 이유 상세 설명"},
+    {"priority": "2순위", "reason": "제작 추천 이유 상세 설명"},
+    {"priority": "3순위", "reason": "제작 추천 이유 상세 설명"}
   ]
 }
 """
@@ -126,8 +126,7 @@ def build_plan_prompt(analysis_summary: str, product_name: str, product_usp_note
         f"[분석 요약]\n{analysis_summary}", f"[브랜드 및 제품명] {product_name}", f"[USP 및 추가 정보] {product_usp_notes}"
     ]
     if landing_url:
-        parts.append(f"[제품 랜딩페이지 URL] {landing_url} (이 URL의 내용도 참고하여 제품의 타겟과 소구점을 반영해 주세요.)")
-    parts.append("[만약 제품 상세페이지 이미지가 첨부되었다면, 이를 꼼꼼히 분석하여 기획에 핵심 소구점으로 반영하세요.]")
+        parts.append(f"[제품 랜딩페이지 URL] {landing_url}")
     parts.append(f"{PLAN_JSON_SCHEMA_HINT}")
     return "\n".join(parts)
 
