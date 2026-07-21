@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from models import ANALYSIS_JSON_FIELDS, PLAN_JSON_FIELDS, Analysis, Base, Plan, Product, Project, Reference
 
 load_dotenv()
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///data/creative_prd.db")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///data/creative_prd_v2.db")
 _connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
 engine = create_engine(DATABASE_URL, connect_args=_connect_args)
 SessionLocal = sessionmaker(bind=engine, expire_on_commit=False)
