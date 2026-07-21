@@ -64,10 +64,10 @@ ANALYSIS_JSON_SCHEMA_HINT = """
 
 PLAN_SYSTEM_INSTRUCTION = (
     "분석된 레퍼런스의 '성공 구매 심리 구조'를 바탕으로 우리 브랜드에 맞게 재해석한 고전환 광고 기획안을 작성합니다.\n"
-    "우리 제품에 적용할 때는 레퍼런스 광고를 그대로 따라 하지 않고 동일한 심리 구조만 유지하며, 광고 심의 리스크가 있는 단정적 표현은 철저히 배제하세요.\n\n"
+    "우리 제품에 적용할 때는 원본 레퍼런스 광고의 뼈대와 전개 방식을 적극적으로 디벨롭하되, 우리 제품의 상세 정보를 자연스럽게 녹여내고 단정적 표현(심의 리스크)은 철저히 배제하세요.\n\n"
     "[절대 준수 사항]\n"
     "1. 'step6_ad_formulas' (고전환 공식)는 최소 3개 이상 반드시 작성하세요.\n"
-    "2. 'step7_new_scripts' (신규 대본)는 제품 설명부터 시작하지 않고 자연스러운 대화형 구성으로 최소 5개를 작성하세요.\n"
+    "2. 'step7_new_scripts' (신규 대본)는 원본 레퍼런스 대본을 기반으로 디벨롭하여, **30~40초 분량의 상세한 '풀버전 대본'을 정확히 5개** 작성하세요. 요약이나 중략 없이 시작부터 끝(CTA)까지 대사가 꽉 채워져 있어야 합니다.\n"
     "3. 'step9_final_priority' (최종 우선순위)는 반드시 1순위, 2순위, 3순위까지 총 3개를 작성해야 합니다."
 )
 
@@ -92,11 +92,11 @@ PLAN_JSON_SCHEMA_HINT = """
   ],
   "step7_new_scripts": [
     {
-      "concept": "컨셉명",
-      "screen_composition": "화면 구성",
-      "dialogue": "대사 (대화형)",
-      "subtitle": "자막",
-      "cta": "CTA"
+      "concept": "컨셉명 (레퍼런스 기반 디벨롭 방향)",
+      "screen_composition": "화면 구성 및 연출 디렉션 (상세히)",
+      "dialogue": "전체 대사 전문 (30~40초 분량, 도입부부터 마무리까지 빈틈없이 꽉 채운 풀버전)",
+      "subtitle": "영상에 들어갈 핵심 강조 자막",
+      "cta": "마지막 구매 유도 CTA 멘트 및 화면"
     }
   ],
   "step8_cheat_keys": [
@@ -122,7 +122,7 @@ def build_analysis_prompt(ad_copy_text: str, has_video: bool = False) -> str:
 def build_plan_prompt(analysis_summary: str, product_name: str, product_usp_notes: str = "", landing_url: str = "") -> str:
     parts = [
         "위 분석을 우리 제품에 적용하여 기획안을 작성합니다. JSON으로만 응답하세요.",
-        f"[분석 요약]\n{analysis_summary}", f"[제품명] {product_name}", f"[USP 및 추가 정보] {product_usp_notes}"
+        f"[분석 요약]\n{analysis_summary}", f"[브랜드 및 제품명] {product_name}", f"[USP 및 추가 정보] {product_usp_notes}"
     ]
     if landing_url:
         parts.append(f"[제품 랜딩페이지 URL] {landing_url} (이 URL의 내용도 참고하여 제품의 타겟과 소구점을 반영해 주세요.)")
